@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интеграция систем управления проектами и задачами</title>
+    <link rel="stylesheet" href="./style/normalize.css">
+    <link rel="stylesheet" href="./style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-content-text">
+                    <h1>Интеграция систем управления проектами и задачами</h1>
+                    <p class="subtitle">IT-компания: повышение эффективности работы команды и уменьшение ошибок</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h2>Статистика</h2>
+                <div class="stats-container" id="statsContainer">
+                    <!-- Статистика будет загружена через JS -->
+                </div>
+                
+                <h2>Синхронизация</h2>
+                <div class="sync-status">
+                    <div class="sync-indicator" id="syncIndicator"></div>
+                    <span id="syncStatusText">Синхронизация активна</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="syncInterval">Интервал синхронизации (сек.)</label>
+                    <input type="number" id="syncInterval" value="300" min="60">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-accent" id="syncNowBtn">
+                        Синхронизировать сейчас
+                    </button>
+                    <button class="btn btn-warning" id="toggleSyncBtn">
+                        Приостановить
+                    </button>
+                </div>
+                
+                <h2 style="margin-top: 30px;">Быстрые действия</h2>
+                <div class="btn-group" style="flex-direction: column;">
+                    <button class="btn btn-sm" id="addProjectBtn">
+                        Добавить проект
+                    </button>
+                    <button class="btn btn-sm btn-accent" id="addTaskBtn">
+                        Добавить задачу
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="projects">
+                        Проекты
+                    </button>
+                    <button class="tab-btn" data-tab="tasks">
+                        Задачи
+                    </button>
+                    <button class="tab-btn" data-tab="integration">
+                        Интеграционные логи
+                    </button>
+                </div>
+                
+                <div class="tab-content active" id="projectsTab">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin-bottom: 0; border: none; padding: 0;">Система управления проектами</h2>
+                        <button class="btn btn-sm" id="showAddProjectFormBtn">
+                            + Новый проект
+                        </button>
+                    </div>
+                    
+                    <div id="addProjectForm" style="display: none; background-color: #f8f9fa; padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px;">
+                        <h3>Создание нового проекта</h3>
+                        <form id="projectForm">
+                            <div class="form-group">
+                                <label for="projectName">Название проекта *</label>
+                                <input type="text" id="projectName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="projectDescription">Описание</label>
+                                <textarea id="projectDescription" rows="3"></textarea>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label for="projectStartDate">Дата начала</label>
+                                    <input type="date" id="projectStartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectEndDate">Дата окончания</label>
+                                    <input type="date" id="projectEndDate">
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-success">Создать проект</button>
+                                <button type="button" class="btn btn-danger" id="cancelProjectBtn">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="projectsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                    <th>Статус</th>
+                                    <th>Даты</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectsTableBody">
+                                <!-- Данные проектов будут загружены через JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="tasksTab">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin-bottom: 0; border: none; padding: 0;">Система управления задачами</h2>
+                        <button class="btn btn-sm btn-accent" id="showAddTaskFormBtn">
+                            + Новая задача
+                        </button>
+                    </div>
+                    
+                    <div id="addTaskForm" style="display: none; background-color: #f8f9fa; padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px;">
+                        <h3>Создание новой задачи</h3>
+                        <form id="taskForm">
+                            <div class="form-group">
+                                <label for="taskProject">Проект *</label>
+                                <select id="taskProject" required>
+                                    <option value="">Выберите проект</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskTitle">Название задачи *</label>
+                                <input type="text" id="taskTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskDescription">Описание</label>
+                                <textarea id="taskDescription" rows="3"></textarea>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label for="taskPriority">Приоритет</label>
+                                    <select id="taskPriority">
+                                        <option value="low">Низкий</option>
+                                        <option value="medium" selected>Средний</option>
+                                        <option value="high">Высокий</option>
+                                        <option value="critical">Критический</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskStatus">Статус</label>
+                                    <select id="taskStatus">
+                                        <option value="pending">Ожидание</option>
+                                        <option value="in_progress">В работе</option>
+                                        <option value="completed">Завершена</option>
+                                        <option value="blocked">Заблокирована</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label for="taskAssignee">Исполнитель</label>
+                                    <input type="text" id="taskAssignee" placeholder="ФИО исполнителя">
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskDueDate">Срок выполнения</label>
+                                    <input type="date" id="taskDueDate">
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-success">Создать задачу</button>
+                                <button type="button" class="btn btn-danger" id="cancelTaskBtn">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="projectFilter">Фильтр по проекту</label>
+                        <select id="projectFilter">
+                            <option value="0">Все проекты</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="tasksTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Задача</th>
+                                    <th>Проект</th>
+                                    <th>Приоритет</th>
+                                    <th>Статус</th>
+                                    <th>Исполнитель</th>
+                                    <th>Срок</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasksTableBody">
+                                <!-- Данные задач будут загружены через JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="integrationTab">
+                    <h2>Логи интеграции систем</h2>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        Отслеживание всех взаимодействий между системой управления проектами и системой управления задачами
+                    </p>
+                    
+                    <div class="logs-container" id="logsContainer">
+                        <!-- Логи будут загружены через JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Итог: Интеграция позволит повысить эффективность работы команды и уменьшить вероятность ошибок.</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">
+        <span id="notificationText">Уведомление</span>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
